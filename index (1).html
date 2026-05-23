@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML → PNG 変換ツール</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>HTML → PNG 変換ツール</h1>
+      <p>HTMLコードを貼り付けるか、.htmlファイルをアップロードしてPNG画像に変換します</p>
+    </header>
+    <main>
+      <section class="input-section">
+        <div class="input-tabs">
+          <button class="tab-btn active" data-tab="paste">コード貼り付け</button>
+          <button class="tab-btn" data-tab="upload">ファイルアップロード</button>
+        </div>
+        <div class="tab-content" id="tab-paste">
+          <textarea id="html-input" placeholder="HTMLコードをここに貼り付けてください..."></textarea>
+          <button class="btn btn-secondary" id="preview-btn">プレビュー更新</button>
+        </div>
+        <div class="tab-content hidden" id="tab-upload">
+          <div class="upload-area" id="upload-area">
+            <div class="upload-icon">📂</div>
+            <p>ここにHTMLファイルをドラッグ＆ドロップ</p>
+            <p>または</p>
+            <label for="file-input" class="btn btn-secondary">ファイルを選択</label>
+            <input type="file" id="file-input" accept=".html,.htm" hidden>
+            <p class="file-name" id="file-name"></p>
+          </div>
+        </div>
+      </section>
+      <section class="preview-section">
+        <div class="preview-header">
+          <h2>プレビュー <span class="edit-badge">✏️ 直接編集可能</span></h2>
+          <div class="preview-meta">
+            <span class="size-info" id="size-info">—</span>
+            <button class="btn btn-secondary btn-sm" id="sync-btn">← コードに同期</button>
+          </div>
+        </div>
+        <div class="toolbar" id="toolbar">
+          <input type="number" id="font-size-input" class="tool-number" min="6" max="200" step="1" placeholder="px">
+          <button class="tool-btn" id="apply-font-size" onmousedown="event.preventDefault()">適用</button>
+          <div class="toolbar-sep"></div>
+          <button class="tool-btn bold-btn" data-cmd="bold" onmousedown="event.preventDefault()"><b>B</b></button>
+          <button class="tool-btn italic-btn" data-cmd="italic" onmousedown="event.preventDefault()"><i>I</i></button>
+          <button class="tool-btn underline-btn" data-cmd="underline" onmousedown="event.preventDefault()"><u>U</u></button>
+          <div class="toolbar-sep"></div>
+          <button class="tool-btn" data-cmd="justifyLeft" onmousedown="event.preventDefault()">&#8676;</button>
+          <button class="tool-btn" data-cmd="justifyCenter" onmousedown="event.preventDefault()">&#8596;</button>
+          <button class="tool-btn" data-cmd="justifyRight" onmousedown="event.preventDefault()">&#8677;</button>
+          <div class="toolbar-sep"></div>
+          <label class="tool-btn color-btn" onmousedown="event.preventDefault()">
+            <span id="color-preview">A</span>
+            <input type="color" id="text-color" value="#000000">
+          </label>
+          <label class="tool-btn color-btn" onmousedown="event.preventDefault()">
+            <span id="bgcolor-preview" style="background:#ffff00;padding:0 2px">A</span>
+            <input type="color" id="bg-color" value="#ffff00">
+          </label>
+        </div>
+        <div class="preview-wrapper">
+          <div class="preview-container" id="preview-container">
+            <div class="preview-placeholder">
+              <p>HTMLコードを入力するとここにプレビューが表示されます</p>
+              <p class="preview-hint">テキストを選択してツールバーで書式を変更できます</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="image-section">
+        <div class="image-section-header">
+          <h2>画像パネル</h2>
+          <p>画像を追加 → サムネイルをクリックして挿入先・サイズを指定（PNG・JPG・GIF・WebP・SVGなど全形式対応）</p>
+        </div>
+        <div class="image-panel">
+          <label class="image-add-btn" id="image-upload-area">
+            <span>＋ 画像を追加</span>
+            <input type="file" id="image-file-input" accept="image/*" multiple hidden>
+          </label>
+          <div class="image-thumbs" id="image-thumbs"></div>
+        </div>
+      </section>
+      <div class="insert-panel hidden" id="insert-panel">
+        <div class="insert-panel-header">
+          <span class="insert-panel-title" id="insert-panel-title">画像を挿入</span>
+          <button class="insert-close" id="insert-close">✕</button>
+        </div>
+        <div class="insert-body">
+          <img class="insert-preview" id="insert-preview" src="" alt="">
+          <div class="insert-fields">
+            <div class="insert-field">
+              <label>挿入先</label>
+              <select id="insert-target" class="insert-select">
+                <option value="end">末尾に追加</option>
+                <option value="start">先頭に追加</option>
+              </select>
+            </div>
+            <div class="insert-field insert-size-row">
+              <div>
+                <label>幅</label>
+                <div class="insert-size-input">
+                  <input type="number" id="insert-width" min="1" placeholder="自動">
+                  <span>px</span>
+                </div>
+              </div>
+              <div>
+                <label>高さ</label>
+                <div class="insert-size-input">
+                  <input type="number" id="insert-height" min="1" placeholder="自動">
+                  <span>px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="insert-actions">
+          <button class="btn btn-primary" id="insert-execute">挿入する</button>
+          <button class="btn btn-secondary" id="insert-cancel">キャンセル</button>
+        </div>
+      </div>
+      <section class="action-section">
+        <button class="btn btn-primary" id="convert-btn" disabled>
+          <span class="btn-icon">🖼️</span> PNGに変換してダウンロード
+        </button>
+        <p class="hint">PNG サイズはHTMLコンテンツのサイズに自動で合わせます（2倍解像度）</p>
+      </section>
+    </main>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
